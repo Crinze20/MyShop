@@ -4,6 +4,7 @@ using MyShop.Core.ViewModels;
 using MyShop.DataAcess.InMemory;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -42,7 +43,7 @@ namespace MyShop.WebUI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(Product product)
+        public ActionResult Create(Product product, HttpPostedFileBase file)
         {
             if (!ModelState.IsValid)
             {
@@ -50,6 +51,12 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
+                if (file != null)
+                {
+                    product.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content/ProductImage//") + product.Image);
+                }
+
                 context.Insert(product);
                 context.Commit();
 
@@ -80,7 +87,7 @@ namespace MyShop.WebUI.Controllers
 
 
         [HttpPost]
-        public ActionResult Edit(Product product, string Id)
+        public ActionResult Edit(Product product, string Id, HttpPostedFileBase file)
         {
             Product productToEdit = context.Find(Id);
 
@@ -94,6 +101,12 @@ namespace MyShop.WebUI.Controllers
                 if (!ModelState.IsValid)
                 {
                     return View(product);
+                }
+
+                if (file != null)
+                {
+                    product.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content/ProductImage//") + product.Image);
                 }
 
                 productToEdit.Category = product.Category;
